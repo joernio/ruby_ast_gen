@@ -104,7 +104,6 @@ module NodeHandling
       base_map[:condition] = children[0]
       base_map[:body] = children[1]
     when :for, :for_post
-      puts children
       base_map[:variable] = children[0]
       base_map[:collection] = children[1]
       base_map[:body] = children[2]
