@@ -41,12 +41,15 @@ module RubyAstGen
     relative_path = file_path.sub(%r{^.*\/}, '')
     relative_input_path = file_path.sub("#{base_dir}/", '')
     # Skip if the file matches the exclusion regex
+    puts "exlcude"
     if exclude_regex && exclude_regex.match?(relative_input_path)
       @logger.info "Excluding: #{relative_input_path}"
       return
     end
-
+    
+    puts "before file"
     return unless ruby_file?(file_path) # Skip if it's not a Ruby-related file
+    puts "after file"    
 
     begin
       ast = parse_file(file_path, relative_input_path)
@@ -58,6 +61,7 @@ module RubyAstGen
       File.write(output_path, JSON.pretty_generate(ast))
       @logger.info "Processed: #{relative_input_path} -> #{output_path}"
     rescue StandardError => e
+      puts "actually errored, logger"
       @logger.error "'#{relative_input_path}' - #{e.message}"
     end
   end
