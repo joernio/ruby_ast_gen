@@ -15,3 +15,10 @@
 Gemfile.lock
 # rspec failure tracking
 .rspec_status
+
+# build tarbells
+*.tar.gz
+
+# build folders
+ruby_ast_gen*-x86_64/
+packaging/vendor
