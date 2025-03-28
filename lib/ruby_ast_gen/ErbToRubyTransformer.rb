@@ -113,14 +113,3 @@ class ErbToRubyTransformer
     end
   end
 end
-
-# class ErbToRubyTransformer < Temple::Engine
-#   use Temple::ERB::Parser
-#   use Temple::ERB::Trimming
-#   generator :RubyCodeGenerator
-#
-#   def call(input)
-#     compiled = super
-#     compiled.split("\n").reject(&:empty?).join("\n")
-#   end
-# end
