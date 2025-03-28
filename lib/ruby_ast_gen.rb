@@ -5,7 +5,7 @@ require 'thread'
 
 require_relative 'ruby_ast_gen/version'
 require_relative 'ruby_ast_gen/node_handling'
-require_relative 'ruby_ast_gen/ErbToRubyTransformer'
+require_relative 'ruby_ast_gen/erb_to_ruby_transformer'
 
 module RubyAstGen
 
@@ -122,18 +122,7 @@ module RubyAstGen
         File.read(file_path)
       else
         file_content = File.read(file_path)
-        begin
-          transformer = ErbToRubyTransformer.new
-          transformer.call(file_content)
-        rescue Error
-          # Wrap the file_content in HEREDOC so the AST parser gives a String output of the ERB file
-          # in case the transformation fell over
-          <<~RUBY
-            <<~HEREDOC
-              #{file_content}
-            HEREDOC
-          RUBY
-        end
+        get_erb_content(file_content)
       end
 
     buffer = Parser::Source::Buffer.new(file_path)
@@ -158,5 +147,20 @@ module RubyAstGen
   def self.erb_file?(file_path)
     ext = File.extname(file_path)
     ['.erb'].include?(ext) || file_path.end_with?('.erb')
+  end
+
+  def self.get_erb_content(file_content)
+    begin
+      transformer = ErbToRubyTransformer.new
+      transformer.transform(file_content)
+    rescue Error
+      # Wrap the file_content in HEREDOC so the AST parser gives a String output of the ERB file
+      # in case the transformation fell over
+      <<~RUBY
+        <<~HEREDOC
+          #{file_content}
+        HEREDOC
+      RUBY
+    end
   end
 end

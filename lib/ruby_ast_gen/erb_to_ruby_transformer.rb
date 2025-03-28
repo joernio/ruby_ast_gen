@@ -10,7 +10,7 @@ class ErbToRubyTransformer
     @control_block_content = []
   end
 
-  def call(input)
+  def transform(input)
     ast = @parser.call(input)
     content = visit(ast)
     # Wrap everything in a HEREDOC
