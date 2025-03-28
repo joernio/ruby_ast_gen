@@ -13,6 +13,9 @@ class ErbToRubyTransformer
   def transform(input)
     ast = @parser.call(input)
     content = visit(ast)
+    if @in_control_block
+      raise ::StandardError, "Invalid ERB Syntax"
+    end
     # Wrap everything in a HEREDOC
     <<~RUBY
       <<~HEREDOC
