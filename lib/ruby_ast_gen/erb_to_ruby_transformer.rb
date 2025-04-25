@@ -7,8 +7,9 @@ class ErbToRubyTransformer
     @indent_level = 0
     @current_line = []
     @in_control_block = false
-    @output_tmp_var = "<tmp-erb>"
+    @output_tmp_var = "tmp0"
     @is_first_output = true
+    @output = []
     @no_control_struct = true
   end
 
@@ -29,7 +30,6 @@ class ErbToRubyTransformer
     return "" unless node.is_a?(Array)
     case node.first
     when :multi
-      output = []
       node[1..-1].each do |child|
         transformed = visit(child)
         unless transformed.strip.empty?
@@ -39,8 +39,8 @@ class ErbToRubyTransformer
         end
       end
       @current_line << "\nHEREDOC\n" if @no_control_struct
-      flush_current_line(output) unless @current_line.empty?
-      output.join("\n")
+      flush_current_line(@output) unless @current_line.empty?
+      @output.join("\n")
     when :static
       "#{node[1].to_s.strip}"
     when :dynamic
