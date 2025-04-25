@@ -42,9 +42,9 @@ class ErbToRubyTransformer
       flush_current_line(@output) unless @current_line.empty?
       @output.join("\n")
     when :static
-      "#{node[1].to_s.strip}"
+      "#{node[1].to_s}"
     when :dynamic
-      "#{node[1].to_s.strip}"
+      "#{node[1].to_s}"
     when :escape
       escape_enabled = node[1]
       inner_node = node[2]
@@ -64,7 +64,10 @@ class ErbToRubyTransformer
       @current_line << "\n#{node[1].to_s.strip}\n"
       @is_first_output = true
       ""
+    when :newline
+      ""
     else
+      RubyAstGen::Logger::debug("Invalid node type: #{node}")
       ""
     end
   end
