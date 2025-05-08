@@ -5,9 +5,9 @@ class ErbToRubyTransformer
   def initialize
     @parser = Temple::ERB::Parser.new
     @in_control_block = false
-    @output_tmp_var = "buffer"
+    @output_tmp_var = "joern__buffer"
     @in_do_block = false
-    @inner_buffer = "inner_buffer"
+    @inner_buffer = "joern__inner_buffer"
     @current_counter = 0
     @current_lambda_vars = ""
     @output = []
