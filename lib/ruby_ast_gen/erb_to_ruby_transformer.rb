@@ -61,6 +61,15 @@ class ErbToRubyTransformer
       # Do block with variable found, lower
       if (code_match = code.match(/do\s*(?:\|([^|]*)\|)?/))
         @current_lambda_vars = code_match[1]
+        before_do, _ = code.split(/\bdo\b/)
+        unless before_do.nil?
+          method_call = before_do.strip
+          call_name, rest = method_call.split(' ', 2)
+          if !rest.start_with?('(') && !rest.end_with?(')')
+            method_call = "#{call_name}(#{rest})"
+          end
+          @output << "#{@output_tmp_var} << #{method_call}"
+        end
         @in_do_block = true
         @output << "#{lambda_incrementor} = lambda do |#{@current_lambda_vars}|"
         @output << "#{@inner_buffer} = \"\""
@@ -90,9 +99,7 @@ class ErbToRubyTransformer
           @in_do_block = false
           @output << "#{@inner_buffer}"
           @output << "end"
-          @output << "buffer << prefix_tag()"
           @output << "buffer << #{current_lambda}.call(#{@current_lambda_vars})"
-          @output << "buffer << post_fix_tag()"
         else
           @in_control_block = false
           @output << "end"
