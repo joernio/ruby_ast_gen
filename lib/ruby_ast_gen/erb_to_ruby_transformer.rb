@@ -14,7 +14,6 @@ class ErbToRubyTransformer
     @static_buff = []
   end
 
-
   def transform(input)
     ast = @parser.call(input)
     @output << "#{@output_tmp_var} = \"\""
@@ -39,12 +38,10 @@ class ErbToRubyTransformer
       end
     when :static
       unless node[1].to_s != nil && node[1].to_s.strip.empty?
-        buffer_to_use = if @in_do_block then "#{@inner_buffer}" else "buffer" end
         @static_buff << "\"#{node[1].to_s.gsub('"', '\"').strip}\""
       end
     when :dynamic
       unless node[1].to_s != nil && node[1].to_s.strip.empty?
-        buffer_to_use = if @in_do_block then "#{@inner_buffer}" else "buffer" end
         @output << "\"#{node[1].to_s.gsub('"', '\"')}\""
       end
     when :escape
@@ -59,29 +56,14 @@ class ErbToRubyTransformer
       code = inner_node[1].to_s.strip
 
       # Do block with variable found, lower
-      if (code_match = code.match(/do\s*(?:\|([^|]*)\|)?/))
-        @current_lambda_vars = code_match[1]
-        before_do, _ = code.split(/\bdo\b/)
-        unless before_do.nil?
-          method_call = before_do.strip
-          call_name, rest = method_call.split(' ', 2)
-          if !rest.start_with?('(') && !rest.end_with?(')')
-            method_call = "#{call_name}(#{rest})"
-          end
-          @output << "#{@output_tmp_var} << #{method_call}"
-        end
-        @in_do_block = true
-        @output << "#{lambda_incrementor} = lambda do |#{@current_lambda_vars}|"
-        @output << "#{@inner_buffer} = \"\""
-        ""
+      if is_do_block(code)
+        lower_do_block(code)
       elsif @in_do_block
         template_call = if escape_enabled then "joern__template_out_raw" else "joern__template_out_escape" end
         @output << "#{@inner_buffer} << #{template_call}(#{code})"
-        ""
       else
         template_call = if escape_enabled then "joern__template_out_raw" else "joern__template_out_escape" end
         @output << "#{@output_tmp_var} << #{template_call}(#{code})"
-        "\#{#{template_call}(#{code})}"
       end
     when :code
       unless @static_buff.empty?
@@ -105,11 +87,8 @@ class ErbToRubyTransformer
           @output << "end"
         end
       else
-        if (code_match = code.match(/do\s*(?:\|([^|]*)\|)?/))
-          @current_lambda_vars = code_match[1]
-          @in_do_block = true
-          @output << "#{lambda_incrementor} = lambda do |#{@current_lambda_vars}|"
-          @output << "#{@inner_buffer} = \"\""
+        if is_do_block(code)
+          lower_do_block(code)
         end
       end
     when :newline
@@ -131,6 +110,28 @@ class ErbToRubyTransformer
 
   def current_lambda()
     "rails_lambda_#{@current_counter-1}"
+  end
+
+  def lower_do_block(code)
+    if (code_match = code.match(/do\s*(?:\|([^|]*)\|)?/))
+      @current_lambda_vars = code_match[1]
+      before_do, _ = code.split(/\bdo\b/)
+      unless before_do.nil?
+        method_call = before_do.strip
+        call_name, rest = method_call.split(' ', 2)
+        if rest != nil && !rest.start_with?('(') && !rest.end_with?(')')
+          method_call = "#{call_name}(#{rest})"
+        end
+        @output << "#{@output_tmp_var} << #{method_call}"
+      end
+      @in_do_block = true
+      @output << "#{lambda_incrementor} = lambda do |#{@current_lambda_vars}|"
+      @output << "#{@inner_buffer} = \"\""
+    end
+  end
+
+  def is_do_block(code)
+    code.match(/do\s*(?:\|([^|]*)\|)?/)
   end
 end
 
