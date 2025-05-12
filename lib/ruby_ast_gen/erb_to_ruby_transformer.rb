@@ -46,7 +46,7 @@ class ErbToRubyTransformer
       end
     when :escape
       unless @static_buff.empty?
-        buffer_to_use = if @in_do_block then "#{@inner_buffer}" else "buffer" end
+        buffer_to_use = if @in_do_block then "#{@inner_buffer}" else "#{@output_tmp_var}" end
         @output << "#{buffer_to_use} << \"#{@static_buff.join('\n').gsub(/(?<!\\)"/, '')}\""
         @static_buff = [] # clear static buffer
       end
@@ -81,7 +81,7 @@ class ErbToRubyTransformer
           @in_do_block = false
           @output << "#{@inner_buffer}"
           @output << "end"
-          @output << "buffer << #{current_lambda}.call(#{@current_lambda_vars})"
+          @output << "#{@output_tmp_var} << #{current_lambda}.call(#{@current_lambda_vars})"
         else
           @in_control_block = false
           @output << "end"
