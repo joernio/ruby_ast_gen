@@ -60,22 +60,7 @@ class ErbToRubyTransformer
         if ast.is_a?(::Parser::AST::Node)
           case ast.type
           when :if
-            if code.strip.start_with?("if")
-              template_call = if escape_enabled
-                                "joern__template_out_raw"
-                              else
-                                "joern__template_out_escape"
-                              end
-
-              if_cond = extract_code_snippet(ast.children[0].location, code)
-              if_body = extract_code_snippet(ast.children[1].location, code)
-              else_body = extract_code_snippet(ast.children[2].location, code) if ast.children[2]
-
-              @output << "if #{if_cond}"
-              @output << "#{template_call}(#{if_body})"
-              @output << "else" if else_body
-              @output << "#{@output_tmp_var} << #{template_call}(#{else_body})" if else_body
-            elsif code.strip.start_with?("unless")
+            if code.strip.start_with?("if") || code.strip.start_with?("unless")
               template_call = if escape_enabled
                                 "joern__template_out_raw"
                               else
