@@ -30,10 +30,10 @@ module NodeHandling
 
     loc = node.location
     meta_data = {
-      start_line: isErb ? -1 : fetch_member(loc, :line),
-      start_column: isErb ? -1 : fetch_member(loc, :column),
-      end_line: isErb ? -1 : fetch_member(loc, :last_line),
-      end_column: isErb ? -1 : fetch_member(loc, :last_column),
+      start_line: is_erb ? -1 : fetch_member(loc, :line),
+      start_column: is_erb ? -1 : fetch_member(loc, :column),
+      end_line: is_erb ? -1 : fetch_member(loc, :last_line),
+      end_column: is_erb ? -1 : fetch_member(loc, :last_column),
       offset_start: loc&.expression&.begin_pos,
       offset_end: loc&.expression&.end_pos,
       code: self.extract_code_snippet(loc, code)
