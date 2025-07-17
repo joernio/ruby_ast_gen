@@ -117,10 +117,12 @@ module RubyAstGen
   end
 
   def self.parse_file(file_path, relative_input_path)
+    isErb = false
     code =
       if ruby_file?(file_path)
         File.read(file_path)
       else
+        isErb = true
         file_content = File.read(file_path)
         get_erb_content(file_content)
       end
@@ -130,7 +132,7 @@ module RubyAstGen
     parser = Parser::CurrentRuby.new
     ast = parser.parse(buffer)
     return unless ast
-    json_ast = NodeHandling::ast_to_json(ast, code, file_path: relative_input_path)
+    json_ast = NodeHandling::ast_to_json(ast, code, file_path: relative_input_path, isErb: isErb)
     json_ast[:file_path] = file_path
     json_ast[:rel_file_path] = relative_input_path
     json_ast

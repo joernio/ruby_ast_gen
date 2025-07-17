@@ -25,15 +25,15 @@ module NodeHandling
     loc.public_send(method) rescue -1
   end
 
-  def self.ast_to_json(node, code, current_depth: 0, file_path: nil)
+  def self.ast_to_json(node, code, current_depth: 0, file_path: nil, isErb: false)
     return unless node.is_a?(Parser::AST::Node)
 
     loc = node.location
     meta_data = {
-      start_line: fetch_member(loc, :line),
-      start_column: fetch_member(loc, :column),
-      end_line: fetch_member(loc, :last_line),
-      end_column: fetch_member(loc, :last_column),
+      start_line: isErb ? -1 : fetch_member(loc, :line),
+      start_column: isErb ? -1 : fetch_member(loc, :column),
+      end_line: isErb ? -1 : fetch_member(loc, :last_line),
+      end_column: isErb ? -1 : fetch_member(loc, :last_column),
       offset_start: loc&.expression&.begin_pos,
       offset_end: loc&.expression&.end_pos,
       code: self.extract_code_snippet(loc, code)
